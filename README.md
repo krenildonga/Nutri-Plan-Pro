@@ -29,7 +29,7 @@ To run NutriPlanPro locally, follow these steps:
 1. Clone the repository:
 
 ```
-git clone https://github.com/DhruvItaliya/NutriPlanPro
+git clone https://github.com/KrenilDonga/NutriPlanPro
 ```
 
 2. Install dependencies for the frontend (React.js) and start server:
@@ -61,3 +61,4 @@ python app.py
 5. Access the application via `http://localhost:5173` in your web browser.
 
 Note: You have to setup mongodb and .env file from your own.
+
