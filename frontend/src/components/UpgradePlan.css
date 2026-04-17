@@ -1,0 +1,78 @@
+/* UpgradePlan.css - Premium Light Theme Pricing Styles */
+
+.upgrade-container {
+    min-height: calc(100vh - 80px);
+    background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.05), transparent 40%),
+                radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.03), transparent 40%),
+                #f8fafc; /* Matches .bg-premium */
+}
+
+.pricing-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.12);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.pricing-card-highlighted {
+    background: white;
+    border: 2px solid #10b981; /* Emerald-500 */
+    position: relative;
+    box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.2);
+}
+
+.pricing-card-highlighted:hover {
+    border-color: #059669;
+    box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.3);
+}
+
+.plan-toggle-container {
+    background: #e2e8f0; /* slate-200 */
+    padding: 4px;
+    border-radius: 9999px;
+    border: 1px solid #cbd5e1;
+}
+
+.plan-toggle-btn {
+    padding: 8px 24px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.plan-toggle-btn.active {
+    background: white;
+    color: #164043;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.plan-toggle-btn.inactive {
+    color: #64748b;
+}
+
+.upgrade-btn {
+    transition: all 0.2s ease;
+}
+
+.feature-icon {
+    opacity: 0.9;
+}
+
+@keyframes glow-light {
+    0% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.1); }
+    50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+    100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.1); }
+}
+
+.popular-badge {
+    animation: glow-light 3s infinite;
+}
