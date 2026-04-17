@@ -1,74 +1,53 @@
-const fs = require('fs');
-const path = require('path');
-const csv = require('csv-parser');
 const createKDTree = require('static-kdtree');
+const Recipe = require('../src/models/Recipe');
+const DietHistory = require('../src/models/DietHistoty');
 
 let recipes = [];
 let kdTree = null;
 let isLoaded = false;
 let isLoading = false;
 
-
-
-const loadData = () => {
-    return new Promise((resolve, reject) => {
-        if (isLoaded) return resolve();
-        if (isLoading) return resolve(); // Avoid multiple loads
+const loadData = async () => {
+    try {
+        if (isLoaded) return;
+        if (isLoading) return; // Avoid multiple loads
 
         isLoading = true;
-        console.log("Loading diet data (recipes) from CSV...");
-        // Use an absolute path or relative to THIS file
-        const csvFilePath = path.join(__dirname, '../src/data/newbase_dietary.csv');
+        console.log("Loading diet data (recipes) from MongoDB...");
 
-        const results = [];
-
-        if (!fs.existsSync(csvFilePath)) {
-            const error = `CSV file not found at ${csvFilePath}. Please ensure it was copied correctly.`;
-            console.error(error);
+        const allRecipes = await Recipe.find({});
+        
+        if (!allRecipes || allRecipes.length === 0) {
+            console.warn("No recipes found in MongoDB collection.");
             isLoading = false;
-            return reject(error);
+            return;
         }
 
-        fs.createReadStream(csvFilePath)
-            .pipe(csv())
-            .on('data', (data) => {
-                // Columns: ,Name,Images,Calories,FatContent,CarbohydrateContent,ProteinContent,Description...
-                // Index mapping in results array:
-                // 0: Name
-                // 1: Images
-                // 2: Calories
-                // 3: FatContent
-                // 4: CarbohydrateContent
-                // 5: ProteinContent
-                results.push([
-                    data.Name || "Unnamed Recipe",
-                    data.Images || "",
-                    parseFloat(data.Calories) || 0,
-                    parseFloat(data.FatContent) || 0,
-                    parseFloat(data.CarbohydrateContent) || 0,
-                    parseFloat(data.ProteinContent) || 0,
-                    data.Dietary_Type || "Veg"
-                ]);
-            })
-            .on('end', () => {
-                recipes = results;
-                console.log(`Loaded ${recipes.length} recipes. Building KD-Tree...`);
+        const results = allRecipes.map(recipe => [
+            recipe.Name || "Unnamed Recipe",
+            recipe.Images || "",
+            parseFloat(recipe.Calories) || 0,
+            parseFloat(recipe.FatContent) || 0,
+            parseFloat(recipe.CarbohydrateContent) || 0,
+            parseFloat(recipe.ProteinContent) || 0,
+            recipe.Dietary_Type || "Veg"
+        ]);
 
-                // Build KD-Tree on Calories, Fat, Carb, Protein (Indices 2, 3, 4, 5)
-                const points = recipes.map(r => [r[2], r[3], r[4], r[5]]);
-                kdTree = createKDTree(points);
+        recipes = results;
+        console.log(`Loaded ${recipes.length} recipes from MongoDB. Building KD-Tree...`);
 
-                isLoaded = true;
-                isLoading = false;
-                console.log("KD-Tree built successfully.");
-                resolve();
-            })
-            .on('error', (err) => {
-                console.error("Error loading CSV:", err);
-                isLoading = false;
-                reject(err);
-            });
-    });
+        // Build KD-Tree on Calories, Fat, Carb, Protein (Indices 2, 3, 4, 5)
+        const points = recipes.map(r => [r[2], r[3], r[4], r[5]]);
+        kdTree = createKDTree(points);
+
+        isLoaded = true;
+        isLoading = false;
+        console.log("KD-Tree built successfully.");
+    } catch (err) {
+        console.error("Error loading data from MongoDB:", err);
+        isLoading = false;
+        throw err;
+    }
 };
 
 const getRecommendation = async (req, res) => {
@@ -85,6 +64,28 @@ const getRecommendation = async (req, res) => {
         }
 
         const { age, height, weight, gender, phyAct, goal, meals_per_day, dietaryPreference } = req.body;
+
+        // Check for existing diet history to enforce "minimum one change" requirement
+        const lastDiet = await DietHistory.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
+        
+        if (lastDiet) {
+            const lastData = lastDiet.personalData;
+            const isIdentical = 
+                lastData.age === parseFloat(age) &&
+                lastData.height === parseFloat(height) &&
+                lastData.weight === parseFloat(weight) &&
+                lastData.gender === gender &&
+                lastData.phyAct === parseInt(phyAct) &&
+                lastData.goal === goal &&
+                lastData.meals_per_day === parseInt(meals_per_day);
+
+            if (isIdentical) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: "You have already generated a diet plan with these exact values. Please change at least one value (e.g., weight, activity level, or goal) to receive a new recommendation." 
+                });
+            }
+        }
 
         // Safety check for weight, height, age
         const weightVal = parseFloat(weight) || 70;
@@ -142,6 +143,46 @@ const getRecommendation = async (req, res) => {
 
         // Return exactly 10 items (or fewer if not enough after filtering)
         recommendedMeals = recommendedMeals.slice(0, 10);
+
+        // --- AUTOMATIC SAVE TO HISTORY ---
+        let wStatus;
+        if (bmi < 18.5) wStatus = "Underweight";
+        else if (bmi < 25) wStatus = "Normal";
+        else if (bmi < 30) wStatus = "Overweight";
+        else wStatus = "Obese";
+
+        const personalData = {
+            age: ageVal,
+            height: heightVal,
+            weight: weightVal,
+            gender: gender,
+            phyAct: actIndex,
+            goal: goal,
+            meals_per_day: mealsCount,
+            wStatus: wStatus,
+            bmi: parseFloat(bmi.toFixed(2)),
+            bmr: parseFloat(bmr.toFixed(2)),
+            required_calories: parseFloat(tdee.toFixed(2))
+        };
+
+        // Extract Name, Calories, Fat, Carb, Protein for history (match schema fields: 0, 2, 3, 4, 5)
+        const historyMeals = recommendedMeals.map(meal => [
+            meal[0], // Name
+            meal[2], // Calories
+            meal[3], // Fat
+            meal[4], // Carb
+            meal[5]  // Protein
+        ]);
+
+        const history = new DietHistory({
+            userId: req.user._id,
+            personalData,
+            selectedMeals: historyMeals
+        });
+
+        await history.save();
+        console.log("Diet plan automatically saved to history for user:", req.user._id);
+        // ---------------------------------
 
         res.status(201).json({
             success: true,
