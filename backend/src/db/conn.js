@@ -19,9 +19,14 @@ const connectDB = async () => {
 
     // 3. Otherwise, initiate a new connection
     console.log("Initiating new database connection...");
+
+    // Safety check: Log masked URI to confirm it's loading the correct env var
+    const maskedUri = uri.replace(/\/\/.*@/, "//****:****@");
+    console.log(`Backend is attempting to connect to: ${maskedUri}`);
+
     connectionPromise = mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 30000, 
-        socketTimeoutMS: 45000,          
+        serverSelectionTimeoutMS: 30000,
+        socketTimeoutMS: 45000,
     }).then((conn) => {
         console.log("Database connection successful!");
         console.log(`Connected to: ${uri.includes('cluster') ? 'Remote/Atlas DB' : 'Local DB'}`);
@@ -30,7 +35,7 @@ const connectDB = async () => {
         connectionPromise = null; // Clear promise on failure to allow retries
         console.error("Database connection failed!");
         console.error("Error Detail:", err.message);
-        
+
         if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
             throw err;
         } else {
