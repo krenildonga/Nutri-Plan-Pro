@@ -14,17 +14,23 @@ connectDB().catch(err => {
     console.error(err);
 });
 
-// Database Readiness Middleware
-const ensureDbConnected = (req, res, next) => {
+// Database Readiness Middleware (Ensures connection before processing)
+const ensureDbConnected = async (req, res, next) => {
     const mongoose = require('mongoose');
-    if (mongoose.connection.readyState !== 1) {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            console.log("Database not ready. Attempting to connect/wait...");
+            await connectDB();
+        }
+        next();
+    } catch (err) {
         return res.status(503).json({
             success: false,
-            error: "Database is still connecting. Please try again in a few seconds.",
-            readyState: mongoose.connection.readyState
+            error: "Database connection failed. Please check server logs and MongoDB Atlas whitelist.",
+            readyState: mongoose.connection.readyState,
+            detail: err.message
         });
     }
-    next();
 };
 
 // Middleware
