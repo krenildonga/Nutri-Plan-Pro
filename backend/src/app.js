@@ -1,15 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const app = express();
-require('./db/conn');
 const cookieParser = require('cookie-parser');
+const connectDB = require('./db/conn');
 const { loadData } = require('../controllers/dietController');
 
-// Build KD-Tree on startup
-loadData();
-const PORT = process.env.PORT;
+const app = express();
+const PORT = process.env.PORT || 8000;
 
+// Middleware
 app.use(cors({
     origin: [process.env.FRONTEND_URL],
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
@@ -18,14 +17,33 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-app.get('/',(req,res)=>{
+// Routes
+app.get('/', (req, res) => {
     res.status(201).send("Welcome to Home page");
 });
 
-app.use('/',require('./routes/woLogin'))
-app.use('/auth',require('./routes/auth'))
+app.use('/', require('./routes/woLogin'));
+app.use('/auth', require('./routes/auth'));
 
-console.log(PORT);
-app.listen(PORT,()=>{
-    console.log(`listening to port ${PORT}`);
-})
+// Start Server and Load Data
+const startServer = async () => {
+    try {
+        // 1. Wait for Database Connection
+        await connectDB();
+
+        // 2. Load Diet Data (Recipes) into Memory
+        // We don't await this so the server can start listening, 
+        // but loadData is optimized and will run in background.
+        loadData();
+
+        // 3. Start Listening
+        app.listen(PORT, () => {
+            console.log(`listening to port ${PORT}`);
+        });
+    } catch (err) {
+        console.error("Initialization Failed:", err.message);
+        process.exit(1);
+    }
+};
+
+startServer();

@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const Register = require('../src/models/Register');
-const DietHistory = require('../src/models/DietHistoty')
+const DietHistory = require('../src/models/DietHistory')
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
@@ -15,7 +15,7 @@ const userRegister = async (req, res) => {
         }
 
         const { name, email, age, height, weight, gender, occupation, password, dietaryPreference } = req.body;
-        
+
         // checking user is already exist or not 
         let user = await Register.findOne({ email });
         if (user) {
@@ -35,14 +35,20 @@ const userRegister = async (req, res) => {
         });
 
         await registerUser.save();
-        console.log("Registered Successfully:", email);
-        
-        // Send email asynchronously without blocking the response
-        if (process.env.PASS_KEY) {
-            sendWelcomeEmail(name, email).catch(err => console.error("Email sending failed:", err.message));
-        }
+        const token = await registerUser.generateToken();
+        const options = {
+            httpOnly: true,
+            maxAge: maxAge,
+            sameSite: 'lax',
+            secure: false // Set to true if using HTTPS
+        };
 
-        return res.status(201).json({ success: true, message: "Registered successfully" });
+        return res.status(201).cookie('token', token, options).json({
+            success: true,
+            message: "Registered successfully",
+            userData: registerUser,
+            auth_token: token
+        });
     }
     catch (err) {
         console.error("Registration Error:", err.message);
@@ -87,18 +93,20 @@ const userLogin = async (req, res) => {
 
         const { email, password } = req.body;
         const userData = await Register.findOne({ email }).select("+password");
-        
+
         if (userData && (await bcrypt.compare(password, userData.password))) {
             const token = await userData.generateToken();
             const maxAge = 3600 * 1000;
             const options = {
                 httpOnly: true,
-                maxAge: maxAge
+                maxAge: maxAge,
+                sameSite: 'lax',
+                secure: false // Set to true if using HTTPS
             };
-            return res.status(201).cookie('token', token, options).json({ 
-                success: true, 
-                userData: userData, 
-                auth_token: token 
+            return res.status(201).cookie('token', token, options).json({
+                success: true,
+                userData: userData,
+                auth_token: token
             });
         } else {
             return res.status(401).json({ success: false, error: 'Invalid Email or Password' });
@@ -140,7 +148,7 @@ const editProfile = async (req, res) => {
             dietaryPreference
         }, { new: true });
         console.log("Updated Successfully")
-        res.status(201).json({ success: true,userData:updatedProfile });
+        res.status(201).json({ success: true, userData: updatedProfile });
     }
     catch (err) {
         console.log(err.message);
@@ -154,14 +162,14 @@ const saveDiet = async (req, res) => {
     const { personalData, selectedMeals } = req.body;
 
     try {
-        const history = await DietHistory({
+        const history = new DietHistory({
             userId: req.user._id,
             personalData,
             selectedMeals
         });
 
         await history.save();
-        console.log("Recommendation saved Successfully!")
+        console.log(`[AUTO-SAVE SUCCESS] Diet plan saved for user ${req.user._id}. Meals: ${history.selectedMeals.length}, Calories: ${history.personalData.required_calories}`);
         res.status(201).json({ success: true });
     }
     catch (err) {
@@ -174,8 +182,14 @@ const saveDiet = async (req, res) => {
 
 const getHistory = async (req, res) => {
     try {
-        const history = await DietHistory.find({ userId: req.user._id }).sort({ createdAt: -1 });
-        res.status(201).json({ success: true, history });
+        console.log(`[GET-HISTORY] Fetching records for user: ${req.user._id}`);
+        // Only return records that have personalData to avoid rendering crashes
+        const history = await DietHistory.find({
+            userId: req.user._id,
+            personalData: { $exists: true }
+        }).sort({ createdAt: -1 });
+        console.log(`[GET-HISTORY] Found ${history.length} valid records.`);
+        res.status(200).json({ success: true, history });
     }
     catch (err) {
         console.log(err.message);
@@ -187,11 +201,11 @@ const deleteHistory = async (req, res) => {
     try {
         const historyId = req.params.id;
         const deletedRecord = await DietHistory.findOneAndDelete({ _id: historyId, userId: req.user._id });
-        
+
         if (!deletedRecord) {
             return res.status(404).json({ success: false, error: "Record not found or unauthorized" });
         }
-        
+
         console.log("Record deleted successfully:", historyId);
         res.status(201).json({ success: true, message: "Record deleted successfully" });
     }
@@ -265,7 +279,7 @@ const forgotPassword = async (req, res) => {
             res.status(200).json({ success: true, message: 'OTP sent to your email' });
         } catch (mailError) {
             console.error("Mail Service Error:", mailError.message);
-            
+
             // Fallback for development: Log the OTP to the console if email fails
             console.log("\n" + "=".repeat(50));
             console.log("DEVELOPMENT MODE: PASSWORD RESET OTP");
@@ -273,9 +287,9 @@ const forgotPassword = async (req, res) => {
             console.log(`OTP: ${otp}`);
             console.log("=".repeat(50) + "\n");
 
-            res.status(200).json({ 
-                success: true, 
-                message: 'OTP generated! (Check server console for the code as email service is not configured)' 
+            res.status(200).json({
+                success: true,
+                message: 'OTP generated! (Check server console for the code as email service is not configured)'
             });
         }
     } catch (err) {
@@ -287,7 +301,7 @@ const forgotPassword = async (req, res) => {
 const verifyOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
-        
+
         const resetPasswordToken = crypto
             .createHash('sha256')
             .update(otp)
@@ -334,4 +348,4 @@ const resetPassword = async (req, res) => {
     }
 }
 
-module.exports = { userLogin, userRegister, userLogout, editProfile, saveDiet, getHistory, deleteHistory, forgotPassword, verifyOTP, resetPassword };
+module.exports = { userLogin, userRegister, userLogout, editProfile, saveDiet, getHistory, deleteHistory, forgotPassword, verifyOTP, resetPassword };

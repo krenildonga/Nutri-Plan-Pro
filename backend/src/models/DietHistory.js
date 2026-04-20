@@ -4,7 +4,7 @@ const historySchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Register',
-        require: true
+        required: true
     },
     personalData: {
         age: { type: Number, required: true },
@@ -14,14 +14,22 @@ const historySchema = new mongoose.Schema({
         phyAct: { type: Number, required: true },
         goal: { type: String, required: true },
         meals_per_day: { type: Number, required: true },
+        dietaryPreference: { type: String, required: true },
         wStatus: { type: String, required: true },
         bmi: { type: Number, required: true },
         bmr: { type: Number, required: true },
         required_calories: { type: Number, required: true }
     },
-    selectedMeals: [[{ type: String, required: true }, { type: Number, required: true }, { type: Number, required: true }, { type: Number, required: true }, { type: Number, required: true }]]
+    selectedMeals: [{
+        name: { type: String, required: true },
+        image: { type: String, default: "" },
+        calories: { type: Number, required: true },
+        fat: { type: Number, required: true },
+        carbohydrates: { type: Number, required: true },
+        protein: { type: Number, required: true }
+    }]
 }, { timestamps: true });
 
-// we are creating model named Register based on userSchema and stored model in Register variable
-const DietHistory = new mongoose.model("MealHistory", historySchema);
+const DietHistory = mongoose.model("DietHistory", historySchema);
+
 module.exports = DietHistory;
