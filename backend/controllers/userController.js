@@ -51,8 +51,13 @@ const userRegister = async (req, res) => {
         });
     }
     catch (err) {
-        console.error("Registration Error:", err.message);
-        return res.status(500).json({ success: false, error: "Internal Server Error" });
+        console.error("Critical Registration Error:", err);
+        console.error("Stack Trace:", err.stack);
+        return res.status(500).json({ 
+            success: false, 
+            error: "Internal Server Error", 
+            message: process.env.NODE_ENV === 'production' ? "Check server logs for details" : err.message 
+        });
     }
 }
 
@@ -113,8 +118,13 @@ const userLogin = async (req, res) => {
         }
     }
     catch (err) {
-        console.error("Login Error:", err.message);
-        return res.status(500).json({ success: false, error: "Internal Server Error" });
+        console.error("Critical Login Error:", err);
+        console.error("Stack Trace:", err.stack);
+        return res.status(500).json({ 
+            success: false, 
+            error: "Internal Server Error",
+            message: process.env.NODE_ENV === 'production' ? "Check server logs for details" : err.message
+        });
     }
 }
 

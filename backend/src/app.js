@@ -14,6 +14,19 @@ connectDB().catch(err => {
     console.error(err);
 });
 
+// Database Readiness Middleware
+const ensureDbConnected = (req, res, next) => {
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({
+            success: false,
+            error: "Database is still connecting. Please try again in a few seconds.",
+            readyState: mongoose.connection.readyState
+        });
+    }
+    next();
+};
+
 // Middleware
 app.use(cors({
     // In production/Vercel, we often want to allow all origins from our own domain 
@@ -30,9 +43,26 @@ app.get('/', (req, res) => {
     res.status(200).send("API is active");
 });
 
+// Diagnostic Route for Deployment Troubleshooting
+app.get('/api/auth/status', (req, res) => {
+    const mongoose = require('mongoose');
+    res.status(200).json({
+        success: true,
+        status: "Backend is running",
+        databaseConnected: mongoose.connection.readyState === 1,
+        databaseState: mongoose.connection.readyState, // 0: disc, 1: conn, 2: connecting, 3: disconnecting
+        env: {
+            SECRET_KEY: process.env.SECRET_KEY ? "Defined" : "MISSING",
+            MONGO_URI: process.env.MONGO_URI ? "Defined" : "MISSING",
+            FRONTEND_URL: process.env.FRONTEND_URL ? "Defined" : "MISSING",
+            VERCEL: process.env.VERCEL ? "Yes" : "No"
+        }
+    });
+});
+
 // Primary Routes - Mounted with /api prefix to match vercel.json rewrites
-app.use('/api', require('./routes/woLogin'));
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api', ensureDbConnected, require('./routes/woLogin'));
+app.use('/api/auth', ensureDbConnected, require('./routes/auth'));
 
 // Secondary Routes - Backward compatibility for local development
 app.use('/', require('./routes/woLogin'));
