@@ -11,7 +11,7 @@ const ForgotPassword = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const ConnString = import.meta.env.VITE_ConnString;
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
 
     const handleIdentifyUser = async (e) => {
         e.preventDefault();

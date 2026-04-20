@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { FaStar, FaRegStar, FaCheckCircle, FaRocket } from 'react-icons/fa';
 import { MdRateReview, MdFeaturedPlayList } from 'react-icons/md';
 const ReviewPage = () => {
-    const ConnString = import.meta.env.VITE_ConnString;
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
     const { isAuthenticate, user } = useContext(AuthContext);
     const navigate = useNavigate();
     

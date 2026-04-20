@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
-  const ConnString = import.meta.env.VITE_ConnString;
+  const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
   const [inputUserData, setInputUserData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const {isAuthenticate,setIsAuthenticate,user,setUser} = useContext(AuthContext);

@@ -10,7 +10,7 @@ import {
 import { MdOutlineHistory } from 'react-icons/md';
 
 const History = () => {
-    const ConnString = import.meta.env.VITE_ConnString;
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
     const { isAuthenticate, user } = useContext(AuthContext);
     const [history, setHistory] = useState([])
     const [loading, setLoading] = useState(true);

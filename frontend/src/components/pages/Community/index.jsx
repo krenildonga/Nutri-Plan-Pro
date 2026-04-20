@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 export default function Index() {
   const { isAuthenticate } = useContext(AuthContext)
   const navigate = useNavigate();
-  const ConnString = import.meta.env.VITE_ConnString;
+  const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
   const {
     post,
     handlePost,

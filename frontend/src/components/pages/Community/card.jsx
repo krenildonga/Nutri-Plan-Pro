@@ -3,7 +3,7 @@ import Answer from "./answer";
 import { CommunityContext } from "../../../context/main";
 import { FaUserCircle } from "react-icons/fa";
 const Card = ({ user, question, answer, tags, id, time }) => {
-  const ConnString = import.meta.env.VITE_ConnString;
+  const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
   const [newAnswer, setNewAnswer] = useState(""); // State for the new answer
   const { userData, setUpdate, update } = useContext(CommunityContext);
   const [occupation, setOccupation] = useState(false);

@@ -5,7 +5,7 @@ import { FaUser, FaBriefcase } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 
 const EditProfile = () => {
-    const ConnString = import.meta.env.VITE_ConnString;
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
     const navigate = useNavigate();
     
     // Safely get user data or null

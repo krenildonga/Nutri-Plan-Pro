@@ -17,7 +17,7 @@ import {
 } from 'react-icons/md';
 
 export const Diet_Rec = () => {
-    const ConnString = import.meta.env.VITE_ConnString;
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
     const { isAuthenticate, user, setIsAuthenticate } = useContext(AuthContext);
     const [isGenerate, setIsGenerate] = useState(false);
     const exercises = ['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active', 'Elite Athlete']
