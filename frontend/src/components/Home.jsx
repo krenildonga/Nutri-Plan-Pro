@@ -7,10 +7,6 @@ import Stats from './Stats';
 import FeaturedBlogs from './FeaturedBlogs';
 
 const Home = () => {
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
-
     return (
         <div className='bg-premium overflow-hidden'>
             <Hero />

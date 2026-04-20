@@ -167,7 +167,14 @@ export const Diet_Rec = () => {
                     bmr: parseFloat(personalData?.bmr) || 0,
                     required_calories: parseFloat(personalData?.calories) || 0
                 },
-                selectedMeals: selectedMeals
+                selectedMeals: selectedMeals.map(meal => ({
+                    name: meal[0],
+                    image: meal[1],
+                    calories: parseFloat(meal[2]),
+                    fat: parseFloat(meal[3]),
+                    carbohydrates: parseFloat(meal[4]),
+                    protein: parseFloat(meal[5])
+                }))
             };
 
             const response = await fetch(`${ConnString}/auth/save-diet`, {

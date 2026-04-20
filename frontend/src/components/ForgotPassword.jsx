@@ -66,14 +66,13 @@ const ForgotPassword = () => {
     return (
         <div className='min-h-[calc(100vh-80px)] flex items-center justify-center bg-gradient-to-br from-emerald-50 via-slate-50 to-emerald-50/30 p-6'>
             <div className='w-full max-w-md bg-white rounded-3xl shadow-xl shadow-emerald-900/5 border border-emerald-100/50 overflow-hidden p-8 md:p-12'>
-                
+
                 {/* Simplified Stepper Indicator */}
                 <div className='flex items-center justify-center gap-4 mb-10'>
                     {[1, 2].map((s) => (
                         <div key={s} className='flex items-center'>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
-                                step >= s ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'
-                            }`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${step >= s ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'
+                                }`}>
                                 {step > s ? <MdCheckCircle size={20} /> : s}
                             </div>
                             {s < 2 && <div className={`w-8 h-1 transition-all duration-300 ${step > s ? 'bg-emerald-600' : 'bg-slate-100'}`} />}

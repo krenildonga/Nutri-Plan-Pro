@@ -18,6 +18,7 @@ import Index from './components/pages/Community/index';
 import EditProfile from './components/EditProfile';
 import ForgotPassword from './components/ForgotPassword';
 import UpgradePlan from './components/UpgradePlan';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   const ConnString = import.meta.env.VITE_ConnString;
@@ -59,6 +60,7 @@ function App() {
   },[])
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Navbar />
       <CommunityContextOrovider>
         <Routes>

@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import toast from 'react-hot-toast'
 import { MdLock, MdEmail, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { FaUser, FaBriefcase } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
   const ConnString = import.meta.env.VITE_ConnString;
   const [userData, setUserData] = useState({ name: "", email: "", password: "", age: "", height: "", weight: "", gender: "male", occupation: "Dietitians and Nutritionist", dietaryPreference: "Veg" });
   const [showPassword, setShowPassword] = useState(false);
+  const {setIsAuthenticate} = useContext(AuthContext);
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(`${ConnString}/auth/register`, {
         method: "POST",
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -28,6 +31,10 @@ const Register = () => {
       const json = await response.json();
 
       if (json.success) {
+        setIsAuthenticate(true);
+        json.userData.success = true;
+        localStorage.setItem('userData', JSON.stringify(json.userData));
+        localStorage.setItem('auth-token', JSON.stringify(json.auth_token));
         toast.success("Registered successfully");
         navigate('/');
       }
@@ -52,7 +59,7 @@ const Register = () => {
             Start your personalized nutrition journey today.
           </p>
         </div>
-        
+
         <div className='flex-1 p-8 md:p-12'>
           <div className='mb-8'>
             <h1 className='text-3xl font-black text-slate-800 tracking-tight'>Create Account</h1>
@@ -64,10 +71,10 @@ const Register = () => {
               <div className='absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none'>
                 <FaUser className='text-slate-400 group-focus-within:text-emerald-500 transition-colors' />
               </div>
-              <input 
-                id="name" name="name" type="text" 
-                className='block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all' 
-                placeholder='Full Name' value={userData.name} onChange={handleChange} required 
+              <input
+                id="name" name="name" type="text"
+                className='block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all'
+                placeholder='Full Name' value={userData.name} onChange={handleChange} required
               />
             </div>
 
@@ -75,31 +82,31 @@ const Register = () => {
               <div className='absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none'>
                 <MdEmail className='text-slate-400 group-focus-within:text-emerald-500 transition-colors' />
               </div>
-              <input 
-                id="email" name="email" type="email" 
-                className='block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all' 
-                placeholder='Email Address' value={userData.email} onChange={handleChange} required 
+              <input
+                id="email" name="email" type="email"
+                className='block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all'
+                placeholder='Email Address' value={userData.email} onChange={handleChange} required
               />
             </div>
 
             <div className='flex gap-4'>
-              <input 
-                id="age" name="age" type="number" 
-                className='block w-1/2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all' 
-                placeholder='Age' value={userData.age} onChange={handleChange} required 
+              <input
+                id="age" name="age" type="number"
+                className='block w-1/2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all'
+                placeholder='Age' value={userData.age} onChange={handleChange} required
               />
-              <input 
-                id="height" name="height" type="number" 
-                className='block w-1/2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all' 
-                placeholder='Height (cm)' value={userData.height} onChange={handleChange} required 
+              <input
+                id="height" name="height" type="number"
+                className='block w-1/2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all'
+                placeholder='Height (cm)' value={userData.height} onChange={handleChange} required
               />
             </div>
 
             <div className='flex gap-4 items-center'>
-              <input 
-                id="weight" name="weight" type="number" 
-                className='block w-1/2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all' 
-                placeholder='Weight (kg)' value={userData.weight} onChange={handleChange} required 
+              <input
+                id="weight" name="weight" type="number"
+                className='block w-1/2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all'
+                placeholder='Weight (kg)' value={userData.weight} onChange={handleChange} required
               />
               <div className='w-1/2 flex items-center gap-4 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl'>
                 <label className='flex items-center gap-2 cursor-pointer'>
@@ -117,8 +124,8 @@ const Register = () => {
               <div className='absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none'>
                 <FaBriefcase className='text-slate-400' />
               </div>
-              <select 
-                id="occupation" name="occupation" onChange={handleChange} 
+              <select
+                id="occupation" name="occupation" onChange={handleChange}
                 className='block w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all appearance-none cursor-pointer'
               >
                 <option value="Dietitians and Nutritionist">Dietitians and Nutritionist</option>
@@ -133,7 +140,7 @@ const Register = () => {
                 <option value="Student">Student</option>
               </select>
             </div>
-            
+
             <div className='group relative'>
               <label className='text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 ml-1'>Dietary Preference</label>
               <div className='flex items-center gap-6 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl mt-1'>
@@ -152,10 +159,10 @@ const Register = () => {
               <div className='absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none'>
                 <MdLock size={18} className='text-slate-400 group-focus-within:text-emerald-500 transition-colors' />
               </div>
-              <input 
-                id="password" name="password" type={showPassword ? "text" : "password"} 
-                className='block w-full pl-11 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all' 
-                placeholder='Strong Password' value={userData.password} onChange={handleChange} required 
+              <input
+                id="password" name="password" type={showPassword ? "text" : "password"}
+                className='block w-full pl-11 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all'
+                placeholder='Strong Password' value={userData.password} onChange={handleChange} required
               />
               <button
                 type="button"

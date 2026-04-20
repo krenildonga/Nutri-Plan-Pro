@@ -81,6 +81,20 @@ const History = () => {
         });
     }
 
+    const getMealData = (meal) => {
+        if (!meal) return { name: "Unknown", image: "", calories: 0, carbohydrates: 0, protein: 0 };
+        // If it's the new object format
+        if (meal.name) return meal;
+        // If it's the transition format (object with string keys "0", "1", etc.) or old array format
+        return {
+            name: meal.name || meal[0] || meal['0'] || "Unnamed Recipe",
+            image: meal.image || meal[1] || meal['1'] || "/placeholder-meal.jpg",
+            calories: meal.calories || meal[2] || meal['2'] || 0,
+            carbohydrates: meal.carbohydrates || meal[4] || meal['4'] || 0,
+            protein: meal.protein || meal[5] || meal['5'] || 0
+        };
+    };
+
     return (
         <div className="bg-premium min-h-screen py-12 px-6 md:px-12 lg:px-20 overflow-x-hidden">
             <div className="max-w-6xl mx-auto">
@@ -128,14 +142,14 @@ const History = () => {
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">{formatDate(item.createdAt)}</p>
-                                            <h3 className="text-xl font-bold text-slate-800 line-clamp-1">{item.selectedMeals[0][0]} and more...</h3>
+                                            <h3 className="text-xl font-bold text-slate-800 line-clamp-1">{getMealData(item.selectedMeals[0]).name} and more...</h3>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                                         <div className="hidden md:flex flex-col items-end px-6 border-r border-slate-100">
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target Intake</span>
-                                            <span className="text-lg font-black text-slate-800">{item.personalData.required_calories} <span className="text-xs font-medium">kcal</span></span>
+                                            <span className="text-lg font-black text-slate-800">{item.personalData?.required_calories || 0} <span className="text-xs font-medium">kcal</span></span>
                                         </div>
                                         
                                         <div className="flex items-center gap-2">
@@ -166,15 +180,15 @@ const History = () => {
                                                     <div className="flex items-center gap-2 text-blue-600 text-[10px] font-black uppercase tracking-widest mb-2">
                                                         <FaBalanceScale /> <span>Metabolic Index</span>
                                                     </div>
-                                                    <h4 className="text-2xl font-black text-slate-800">{item.personalData.bmi} <span className="text-xs font-normal text-slate-400">pts</span></h4>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">{item.personalData.wStatus}</p>
+                                                    <h4 className="text-2xl font-black text-slate-800">{item.personalData?.bmi || "N/A"} <span className="text-xs font-normal text-slate-400">pts</span></h4>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">{item.personalData?.wStatus || "Unknown"}</p>
                                                 </div>
 
                                                 <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100 space-y-2">
                                                     <div className="flex items-center gap-2 text-purple-600 text-[10px] font-black uppercase tracking-widest mb-2">
                                                         <span>⚡</span> <span>Basal Forecast</span>
                                                     </div>
-                                                    <h4 className="text-2xl font-black text-slate-800">{item.personalData.bmr} <span className="text-xs font-normal text-slate-400">kcal</span></h4>
+                                                    <h4 className="text-2xl font-black text-slate-800">{item.personalData?.bmr || 0} <span className="text-xs font-normal text-slate-400">kcal</span></h4>
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase">Per 24h cycle</p>
                                                 </div>
 
@@ -182,8 +196,8 @@ const History = () => {
                                                     <div className="flex items-center gap-2 text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-2">
                                                         <FaFire /> <span>Required Energy</span>
                                                     </div>
-                                                    <h4 className="text-2xl font-black text-emerald-700">{item.personalData.required_calories} <span className="text-xs font-normal text-emerald-400">kcal</span></h4>
-                                                    <p className="text-[10px] font-bold text-emerald-500 uppercase">{item.personalData.goal}</p>
+                                                    <h4 className="text-2xl font-black text-emerald-700">{item.personalData?.required_calories || 0} <span className="text-xs font-normal text-emerald-400">kcal</span></h4>
+                                                    <p className="text-[10px] font-bold text-emerald-500 uppercase">{item.personalData?.goal || "N/A"}</p>
                                                 </div>
                                             </div>
 
@@ -194,21 +208,24 @@ const History = () => {
                                                     Archived Menu Plan
                                                 </h4>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {item.selectedMeals.map((meal, i) => (
-                                                        <div key={i} className="flex items-center gap-4 p-4 bg-white border border-slate-50 rounded-2xl hover:shadow-md transition-all group">
-                                                            <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 shadow-sm">
-                                                                <img src={meal[1]} alt={meal[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                                            </div>
-                                                            <div className="flex-1 w-full overflow-hidden">
-                                                                <h5 className="font-bold text-slate-800 truncate">{meal[0]}</h5>
-                                                                <div className="flex flex-wrap gap-2 mt-2">
-                                                                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-1 bg-rose-50 text-rose-600 rounded-lg">{meal[2]} kcal</span>
-                                                                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-1 bg-blue-50 text-blue-600 rounded-lg">{meal[4]}g carb</span>
-                                                                    <span className="text-[9px] font-black uppercase tracking-wider px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg">{meal[5]}g prot</span>
+                                                    {item.selectedMeals.map((rawMeal, i) => {
+                                                        const meal = getMealData(rawMeal);
+                                                        return (
+                                                            <div key={i} className="flex items-center gap-4 p-4 bg-white border border-slate-50 rounded-2xl hover:shadow-md transition-all group">
+                                                                <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 shadow-sm">
+                                                                    <img src={meal.image || "/placeholder-meal.jpg"} alt={meal.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                                </div>
+                                                                <div className="flex-1 w-full overflow-hidden">
+                                                                    <h5 className="font-bold text-slate-800 truncate">{meal.name}</h5>
+                                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-1 bg-rose-50 text-rose-600 rounded-lg">{Math.round(parseFloat(meal.calories) || 0)} kcal</span>
+                                                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-1 bg-blue-50 text-blue-600 rounded-lg">{parseFloat(meal.carbohydrates || 0).toFixed(1)}g carb</span>
+                                                                        <span className="text-[9px] font-black uppercase tracking-wider px-2 py-1 bg-emerald-50 text-emerald-600 rounded-lg">{parseFloat(meal.protein || 0).toFixed(1)}g prot</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         </div>
