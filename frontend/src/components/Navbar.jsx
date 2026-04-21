@@ -9,7 +9,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import toast from 'react-hot-toast';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext, authHeaders } from '../context/AuthContext';
 import Profile from './Profile';
 import logo from '../assets/logo.png';
 
@@ -21,7 +21,6 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Synchronize menu state with current URL path
     useEffect(() => {
         const path = location.pathname;
         if (path === '/') setMenu('home');
@@ -33,16 +32,13 @@ const Navbar = () => {
         else if (path.includes('/upgrade-plan')) setMenu('upgrade');
     }, [location.pathname]);
 
-
     const handleLogout = async (e) => {
         e.preventDefault();
         try {
             const response = await fetch(`${ConnString}/auth/logout`, {
                 method: "GET",
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: authHeaders()
             });
             const json = await response.json();
             if (json.success) {
@@ -105,7 +101,6 @@ const Navbar = () => {
                                             Upgrade
                                         </li>
                                     </Link>
-
                                 </>
                             )}
                         </ul>
@@ -129,7 +124,7 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* mobile menu implementation */}
+            {/* mobile menu */}
             <div className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 transition-opacity duration-300 sm:hidden ${nav ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setNav(false)}>
                 <div className={`absolute top-0 left-0 h-full w-[280px] bg-white shadow-2xl transition-transform duration-300 ease-out ${nav ? 'translate-x-0' : '-translate-x-full'}`} onClick={e => e.stopPropagation()}>
                     <div className='p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50'>
@@ -166,4 +161,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar
+export default Navbar;
