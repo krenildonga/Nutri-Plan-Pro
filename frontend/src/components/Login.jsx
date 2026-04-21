@@ -33,7 +33,6 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      // FINAL FIXED LOGIN URL
       const response = await fetch(`${ConnString}/auth/login`, {
         method: "POST",
         credentials: "include",
@@ -46,10 +45,21 @@ const Login = () => {
         })
       });
 
-      const json = await response.json();
+      // Read raw response first
+      const text = await response.text();
+
+      let json = {};
+
+      try {
+        json = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        throw new Error("Server returned invalid JSON response.");
+      }
 
       if (!response.ok) {
-        throw new Error(json.error || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          json.error || json.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       if (json.success) {
@@ -57,12 +67,12 @@ const Login = () => {
 
         localStorage.setItem(
           "userData",
-          JSON.stringify(json.userData)
+          JSON.stringify(json.userData || {})
         );
 
         localStorage.setItem(
           "auth-token",
-          JSON.stringify(json.auth_token)
+          JSON.stringify(json.auth_token || "")
         );
 
         toast.success("Login successfully");
@@ -73,6 +83,7 @@ const Login = () => {
 
     } catch (err) {
       console.error("Login Error:", err);
+
       toast.error(
         err.message || "Failed to connect to server. Please try again later."
       );
@@ -144,7 +155,7 @@ const Login = () => {
                 placeholder="Email Address"
                 value={inputUserData.email}
                 onChange={handleChange}
-                className='block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl'
+                className='block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500'
               />
             </div>
 
@@ -161,12 +172,12 @@ const Login = () => {
                 placeholder="Password"
                 value={inputUserData.password}
                 onChange={handleChange}
-                className='block w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl'
+                className='block w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500'
               />
 
               <button
                 type="button"
-                className='absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400'
+                className='absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-emerald-700'
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword
@@ -179,13 +190,18 @@ const Login = () => {
             {/* Remember / Forgot */}
             <div className='flex items-center justify-between'>
               <label className='flex items-center gap-2 cursor-pointer'>
-                <input type="checkbox" className='w-4 h-4 accent-emerald-600' />
-                <span className='text-sm text-slate-600'>Remember me</span>
+                <input
+                  type="checkbox"
+                  className='w-4 h-4 accent-emerald-600'
+                />
+                <span className='text-sm text-slate-600'>
+                  Remember me
+                </span>
               </label>
 
               <Link
                 to='/forgot-password'
-                className='text-sm font-semibold text-emerald-700'
+                className='text-sm font-semibold text-emerald-700 hover:underline'
               >
                 Forgot password?
               </Link>
@@ -194,7 +210,7 @@ const Login = () => {
             {/* Submit */}
             <button
               type='submit'
-              className='w-full py-4 bg-emerald-700 text-white font-bold rounded-2xl hover:bg-emerald-800'
+              className='w-full py-4 bg-emerald-700 text-white font-bold rounded-2xl hover:bg-emerald-800 transition-all'
             >
               Login to Dashboard
             </button>
