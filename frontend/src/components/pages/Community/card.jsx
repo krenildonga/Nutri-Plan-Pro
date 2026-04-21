@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import Answer from "./answer";
 import { CommunityContext } from "../../../context/main";
+import { AuthContext, authHeaders } from "../../../context/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 const Card = ({ user, question, answer, tags, id, time }) => {
   const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
@@ -18,9 +19,7 @@ const Card = ({ user, question, answer, tags, id, time }) => {
     const response = await fetch(`${ConnString}/auth/community/addAnswer`, {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: authHeaders(),
       body: JSON.stringify({ user_id: packet.user_id, question_id: packet.question_id, answer: packet.answer })
     })
     const json = await response.json();

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext, authHeaders } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FaStar, FaRegStar, FaCheckCircle, FaRocket } from 'react-icons/fa';
 import { MdRateReview, MdFeaturedPlayList } from 'react-icons/md';
@@ -97,9 +97,7 @@ const ReviewPage = () => {
         try {
             const response = await fetch(`${ConnString}/auth/add-review`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: authHeaders(),
                 body: JSON.stringify({ rating, comment, feature }),
                 credentials: 'include'
             });

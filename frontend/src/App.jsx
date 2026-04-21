@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './components/Register';
 import { Diet_Rec } from './components/Diet_Rec/Diet_Rec';
 import History from './components/History';
-import { AuthContext } from './context/AuthContext';
+import { AuthContext, authHeaders } from './context/AuthContext';
 import Footer from './components/Footer';
 import ContactUs from './components/ContactUs';
 import Blogs from './components/Blogs';
@@ -30,7 +30,8 @@ function App() {
       try {
         const response = await fetch(`${ConnString}/auth/getuser`, {
           method: "GET",
-          credentials: 'include'
+          credentials: 'include',
+          headers: authHeaders()
         });
         
         if (!response.ok) {

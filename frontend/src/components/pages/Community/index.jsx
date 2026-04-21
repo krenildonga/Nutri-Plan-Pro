@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Card from "./card";
 import { CommunityContext } from "../../../context/main";
 import { toast } from 'react-hot-toast';
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext, authHeaders } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Index() {
@@ -28,9 +28,7 @@ export default function Index() {
         const response = await fetch(`${ConnString}/auth/community/getAllCommunity`, {
           method: "GET",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: authHeaders(),
         });
         const json = await response.json();
         if (!json.success) {
@@ -60,10 +58,8 @@ export default function Index() {
       console.log(JSON.parse(localStorage.getItem('userData')));
       const res = await fetch(`${ConnString}/auth/community/addQuestion`, {
         method: "POST",
-        // credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers: authHeaders(),
         body: JSON.stringify({ id: packet.id, question: packet.question, tags: packet.tags })
       });
       setVal("");

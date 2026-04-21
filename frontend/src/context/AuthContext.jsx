@@ -4,10 +4,15 @@ export const AuthContext = createContext(null);
 
 // Helper to get token from localStorage
 export const getAuthToken = () => {
+    const rawToken = localStorage.getItem("auth-token");
+    if (!rawToken) return null;
     try {
-        return JSON.parse(localStorage.getItem("auth-token")) || null;
+        // Try to parse if it's stored as a JSON string
+        const parsed = JSON.parse(rawToken);
+        return parsed || null;
     } catch {
-        return null;
+        // Fallback to raw string if parsing fails
+        return rawToken;
     }
 };
 
