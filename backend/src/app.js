@@ -32,12 +32,9 @@ apiRouter.get("/ping", (req, res) => res.json({ success: true, message: "pong", 
 apiRouter.use("/auth", require("./routes/auth"));
 apiRouter.use("/", require("./routes/woLogin"));
 
+// Dual mounting: handle both prefixed and non-prefixed paths from Vercel rewrites
 app.use("/api", apiRouter);
-// Support Vercel rewrites that might strip the /api prefix
-app.use("/", (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    apiRouter(req, res, next);
-});
+app.use("/", apiRouter);
 
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {
