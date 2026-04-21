@@ -1,28 +1,15 @@
 {
     "version": 2,
-    "buildCommand": "npm run build --workspace=frontend",
+    "buildCommand": "npm run build",
     "outputDirectory": "frontend/dist",
-    "builds": [
+    "rewrites": [
         {
-            "src": "api/server.js",
-            "use": "@vercel/node"
+            "source": "/api/(.*)",
+            "destination": "/api/server.js"
         },
         {
-            "src": "frontend/package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "/api/server.js"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/index.html"
+            "source": "/(.*)",
+            "destination": "/"
         }
     ]
 }
