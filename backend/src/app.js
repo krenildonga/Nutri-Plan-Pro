@@ -17,6 +17,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// Root-level health check for Vercel
+app.get("/api/health", (req, res) => res.json({ status: "ok", environment: process.env.VERCEL ? "production" : "development" }));
+
 app.use(cors({
     origin: process.env.FRONTEND_URL
         ? [process.env.FRONTEND_URL, "http://localhost:5173"]
