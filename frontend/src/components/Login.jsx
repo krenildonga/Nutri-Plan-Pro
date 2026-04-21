@@ -12,11 +12,10 @@ import login_img from '../assets/login.jpg';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
-  // Production on Vercel -> use /api
-  // Local -> use localhost backend
-  const ConnString =
-    import.meta.env.VITE_ConnString ||
-    (import.meta.env.PROD ? "/api" : "http://localhost:8000");
+  // FINAL SAFE API URL
+  const ConnString = import.meta.env.PROD
+    ? "/api"
+    : "http://localhost:8000";
 
   const [inputUserData, setInputUserData] = useState({
     email: "",
@@ -26,7 +25,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { setIsAuthenticate } = useContext(AuthContext);
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -45,20 +43,21 @@ const Login = () => {
         })
       });
 
-      // Read raw response first
       const text = await response.text();
 
       let json = {};
 
       try {
         json = text ? JSON.parse(text) : {};
-      } catch (parseError) {
-        throw new Error("Server returned invalid JSON response.");
+      } catch (error) {
+        throw new Error("Invalid server response.");
       }
 
       if (!response.ok) {
         throw new Error(
-          json.error || json.message || `HTTP error! status: ${response.status}`
+          json.error ||
+          json.message ||
+          `HTTP error! status: ${response.status}`
         );
       }
 
@@ -83,9 +82,8 @@ const Login = () => {
 
     } catch (err) {
       console.error("Login Error:", err);
-
       toast.error(
-        err.message || "Failed to connect to server. Please try again later."
+        err.message || "Failed to connect to server."
       );
     }
   };
@@ -99,19 +97,16 @@ const Login = () => {
 
   return (
     <div className='min-h-[calc(100vh-80px)] flex items-center justify-center bg-gradient-to-br from-emerald-50 via-slate-50 to-emerald-50/30 p-6'>
-      <div className='w-full max-w-4xl bg-white rounded-3xl shadow-xl shadow-emerald-900/5 border border-emerald-100/50 overflow-hidden flex flex-col md:flex-row'>
+      <div className='w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden flex flex-col md:flex-row'>
 
-        {/* Left Side */}
-        <div className='hidden md:flex md:w-1/2 bg-emerald-900 p-12 flex-col justify-between relative overflow-hidden'>
-          <div className='absolute top-0 right-0 w-64 h-64 bg-emerald-800 rounded-full -mr-32 -mt-32 opacity-50 blur-3xl'></div>
-          <div className='absolute bottom-0 left-0 w-64 h-64 bg-emerald-700 rounded-full -ml-32 -mb-32 opacity-30 blur-3xl'></div>
-
-          <div className='relative z-10'>
-            <h2 className='text-4xl font-black text-white tracking-tight mb-4'>
+        {/* Left */}
+        <div className='hidden md:flex md:w-1/2 bg-emerald-900 p-12 flex-col justify-between relative'>
+          <div>
+            <h2 className='text-4xl font-black text-white mb-4'>
               Welcome Back!
             </h2>
 
-            <p className='text-emerald-100/80 text-lg leading-relaxed'>
+            <p className='text-emerald-100 text-lg leading-relaxed'>
               Login to continue your journey towards a healthier,
               more vibrant life with NutriPlanPro.
             </p>
@@ -119,19 +114,19 @@ const Login = () => {
 
           <img
             src={login_img}
-            className='relative z-10 object-contain w-full max-h-64 drop-shadow-2xl hover:scale-105 transition-transform duration-500'
-            alt="Login Illustration"
+            alt="Login"
+            className='object-contain w-full max-h-64'
           />
 
-          <div className='relative z-10 text-emerald-200/60 text-sm'>
-            &copy; {new Date().getFullYear()} NutriPlanPro. All rights reserved.
+          <div className='text-emerald-200 text-sm'>
+            &copy; {new Date().getFullYear()} NutriPlanPro
           </div>
         </div>
 
-        {/* Right Side */}
+        {/* Right */}
         <div className='flex-1 p-8 md:p-16 flex flex-col justify-center'>
           <div className='mb-10'>
-            <h1 className='text-4xl font-black text-slate-800 tracking-tight'>
+            <h1 className='text-4xl font-black text-slate-800'>
               Login
             </h1>
 
@@ -143,8 +138,8 @@ const Login = () => {
           <form onSubmit={handleSubmit} className='space-y-6'>
 
             {/* Email */}
-            <div className='group relative'>
-              <div className='absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none'>
+            <div className='relative'>
+              <div className='absolute inset-y-0 left-0 pl-4 flex items-center'>
                 <MdEmail size={20} className='text-slate-400' />
               </div>
 
@@ -155,13 +150,13 @@ const Login = () => {
                 placeholder="Email Address"
                 value={inputUserData.email}
                 onChange={handleChange}
-                className='block w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500'
+                className='w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl'
               />
             </div>
 
             {/* Password */}
-            <div className='group relative'>
-              <div className='absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none'>
+            <div className='relative'>
+              <div className='absolute inset-y-0 left-0 pl-4 flex items-center'>
                 <MdLock size={20} className='text-slate-400' />
               </div>
 
@@ -172,13 +167,13 @@ const Login = () => {
                 placeholder="Password"
                 value={inputUserData.password}
                 onChange={handleChange}
-                className='block w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500'
+                className='w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl'
               />
 
               <button
                 type="button"
-                className='absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-emerald-700'
                 onClick={() => setShowPassword(!showPassword)}
+                className='absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400'
               >
                 {showPassword
                   ? <MdVisibilityOff size={22} />
@@ -187,42 +182,37 @@ const Login = () => {
               </button>
             </div>
 
-            {/* Remember / Forgot */}
-            <div className='flex items-center justify-between'>
-              <label className='flex items-center gap-2 cursor-pointer'>
-                <input
-                  type="checkbox"
-                  className='w-4 h-4 accent-emerald-600'
-                />
-                <span className='text-sm text-slate-600'>
-                  Remember me
-                </span>
+            {/* Row */}
+            <div className='flex justify-between items-center'>
+              <label className='flex gap-2 items-center text-sm text-slate-600'>
+                <input type="checkbox" />
+                Remember me
               </label>
 
               <Link
-                to='/forgot-password'
-                className='text-sm font-semibold text-emerald-700 hover:underline'
+                to="/forgot-password"
+                className='text-sm font-semibold text-emerald-700'
               >
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit */}
+            {/* Button */}
             <button
-              type='submit'
-              className='w-full py-4 bg-emerald-700 text-white font-bold rounded-2xl hover:bg-emerald-800 transition-all'
+              type="submit"
+              className='w-full py-4 bg-emerald-700 text-white font-bold rounded-2xl hover:bg-emerald-800'
             >
               Login to Dashboard
             </button>
 
             {/* Register */}
-            <div className='text-center pt-6'>
-              <p className='text-slate-500 text-sm'>
+            <div className='text-center pt-4'>
+              <p className='text-sm text-slate-500'>
                 Don't have an account?
 
                 <Link
                   to="/register"
-                  className='text-emerald-700 font-bold hover:underline ml-1'
+                  className='ml-1 text-emerald-700 font-bold'
                 >
                   Create one now
                 </Link>
