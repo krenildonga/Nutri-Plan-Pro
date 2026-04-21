@@ -21,10 +21,16 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-app.get("/", (req, res) => res.send("API active"));
+const apiRouter = express.Router();
+apiRouter.use("/auth", require("./routes/auth"));
+apiRouter.use("/", require("./routes/woLogin"));
 
-app.use("/api", require("./routes/woLogin"));
-app.use("/api/auth", require("./routes/auth"));
+app.use("/api", apiRouter);
+// Support Vercel rewrites that might strip the /api prefix
+app.use("/", (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    apiRouter(req, res, next);
+});
 
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {
