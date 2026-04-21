@@ -21,7 +21,9 @@ import UpgradePlan from './components/UpgradePlan';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
-  const ConnString = import.meta.env.VITE_ConnString;
+  const ConnString = import.meta.env.PROD
+    ? "/api"
+    : (import.meta.env.VITE_ConnString || "http://localhost:8000");
   const { isAuthenticate, setIsAuthenticate, setUser } = useContext(AuthContext);
   useEffect(() => {
     const fetchUser = async () => {

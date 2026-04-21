@@ -11,6 +11,12 @@ const PORT = process.env.PORT || 8000;
 
 connectDB().catch(console.error);
 
+// Logging middleware for Vercel debugging
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
+
 app.use(cors({
     origin: process.env.FRONTEND_URL
         ? [process.env.FRONTEND_URL, "http://localhost:5173"]
@@ -22,6 +28,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 const apiRouter = express.Router();
+apiRouter.get("/ping", (req, res) => res.json({ success: true, message: "pong", timestamp: new Date().toISOString() }));
 apiRouter.use("/auth", require("./routes/auth"));
 apiRouter.use("/", require("./routes/woLogin"));
 
