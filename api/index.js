@@ -1,4 +1,6 @@
 const app = require('../backend/src/app');
 
-// Standard Vercel index.js entry point
-module.exports = app;
+// Standard Vercel entry point
+module.exports = (req, res) => {
+  return app(req, res);
+};
