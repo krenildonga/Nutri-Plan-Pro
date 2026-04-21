@@ -12,10 +12,12 @@ const PORT = process.env.PORT || 8000;
 connectDB().catch(console.error);
 
 // ✅ CORS must be FIRST — before any routes or other middleware
+const allowedOrigins = process.env.FRONTEND_URL
+    ? [process.env.FRONTEND_URL, "http://localhost:5173"]
+    : true;
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL
-        ? [process.env.FRONTEND_URL, "http://localhost:5173"]
-        : true,
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
