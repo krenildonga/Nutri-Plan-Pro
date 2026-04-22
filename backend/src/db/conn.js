@@ -31,7 +31,10 @@ const connectDB = async () => {
             .connect(uri, {
                 serverSelectionTimeoutMS: 30000,
                 socketTimeoutMS: 45000,
-                maxPoolSize: 10
+                maxPoolSize: 10,
+                bufferCommands: true,
+                autoIndex: true,
+                bufferTimeoutMS: 30000
             })
             .then((conn) => {
                 console.log("MongoDB connected successfully.");
