@@ -22,13 +22,9 @@ const requiredFields = ['jwtSecret', 'mongoUri'];
 const missingFields = requiredFields.filter(field => !config[field]);
 
 if (missingFields.length > 0) {
-    console.error(`\n[FATAL CONFIG ERROR] Missing required environment variables: ${missingFields.join(', ')}`);
-    console.error(`Make sure to set these in your .env file or Vercel Dashboard.\n`);
-    
-    // In production, we should throw to prevent insecure execution
-    if (config.env === 'production' || config.isVercel) {
-        throw new Error(`Missing required configuration: ${missingFields.join(', ')}`);
-    }
+    console.error(`\n[CONFIG WARNING] Missing environment variables: ${missingFields.join(', ')}`);
+    console.error(`Please ensure these are set in the Vercel Dashboard or .env file.`);
+    console.error(`The app will start, but features requiring these variables will fail.\n`);
 }
 
 module.exports = config;

@@ -8,6 +8,11 @@ let connectionPromise = null;
 
 const connectDB = async () => {
     try {
+        if (!uri) {
+            console.error("\n[DATABASE ERROR] MONGO_URI is missing from configuration.");
+            throw new Error("MONGO_URI is not defined.");
+        }
+
         // 1. If already connected, reuse existing connection
         if (mongoose.connection.readyState === 1) {
             console.log("Using existing MongoDB connection.");

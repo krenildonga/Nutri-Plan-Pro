@@ -8,6 +8,14 @@ const config = require('../src/config');
 
 // Helper function to create token and send response
 const sendToken = (user, statusCode, res, message) => {
+    if (!config.jwtSecret) {
+        return res.status(500).json({
+            success: false,
+            error: "Server Configuration Error",
+            message: "SECRET_KEY is not defined in environment variables. Please check Vercel settings."
+        });
+    }
+
     const token = user.generateToken();
 
     // Cookie options
