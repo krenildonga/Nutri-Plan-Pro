@@ -1,8 +1,9 @@
 ﻿PORT=8000
-SECRET_KEY="sdkjfhwieutgkjgsldkjgsdlbvsljdfgsbdlfjkvbsdlgj"
-EXPIRES_IN=7d,
+SECRET_KEY=sdkjfhwieutgkjgsldkjgsdlbvsljdfgsbdlfjkvbsdlgj
+EXPIRES_IN=7d
+COOKIE_EXPIRE=7
 FRONTEND_URL=http://localhost:5173
-PASS_KEY=""
 
 
-MONGO_URI=mongodb://localhost:27017/nutri-plan-pro
+MONGO_URI=mongodb+srv://krenildonga:ZTuxys2L8ZJMBMeG@cluster0.elaz96y.mongodb.net/nutri-plan-pro
+
