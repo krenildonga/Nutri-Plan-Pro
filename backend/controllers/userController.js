@@ -5,6 +5,28 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
+// Helper function to create token and send response
+const sendToken = (user, statusCode, res, message) => {
+    const token = user.generateToken();
+
+    // Cookie options
+    const options = {
+        expires: new Date(
+            Date.now() + (process.env.COOKIE_EXPIRE || 7) * 24 * 60 * 60 * 1000
+        ),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    };
+
+    res.status(statusCode).cookie('token', token, options).json({
+        success: true,
+        message,
+        userData: user,
+        auth_token: token
+    });
+};
+
 const userRegister = async (req, res) => {
     try {
         // getting error through validationResult from req object
@@ -35,21 +57,7 @@ const userRegister = async (req, res) => {
         });
 
         await registerUser.save();
-        const token = await registerUser.generateToken();
-        const maxAge = 3600 * 1000;
-        const options = {
-            httpOnly: true,
-            maxAge: maxAge,
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production'
-        };
-
-        return res.status(201).cookie('token', token, options).json({
-            success: true,
-            message: "Registered successfully",
-            userData: registerUser,
-            auth_token: token
-        });
+        sendToken(registerUser, 201, res, "Registered successfully");
     }
     catch (err) {
         console.error("Critical Registration Error:", err);
@@ -101,19 +109,7 @@ const userLogin = async (req, res) => {
         const userData = await Register.findOne({ email }).select("+password");
 
         if (userData && (await bcrypt.compare(password, userData.password))) {
-            const token = await userData.generateToken();
-            const maxAge = 3600 * 1000;
-            const options = {
-                httpOnly: true,
-                maxAge: maxAge,
-                sameSite: 'lax',
-                secure: process.env.NODE_ENV === 'production'
-            };
-            return res.status(201).cookie('token', token, options).json({
-                success: true,
-                userData: userData,
-                auth_token: token
-            });
+            sendToken(userData, 200, res, "Login successful");
         } else {
             return res.status(401).json({ success: false, error: 'Invalid Email or Password' });
         }

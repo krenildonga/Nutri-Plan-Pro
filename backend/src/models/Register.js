@@ -57,14 +57,20 @@ userSchema.pre('save', async function (next) {
 });
 
 // function for generate token
-
-userSchema.methods.generateToken = async function () {
+userSchema.methods.generateToken = function () {
     try {
-        const token = await jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
-        return token;
+        if (!process.env.SECRET_KEY) {
+            throw new Error("SECRET_KEY is not defined in environment variables");
+        }
+        return jwt.sign(
+            { _id: this._id }, 
+            process.env.SECRET_KEY, 
+            { expiresIn: process.env.EXPIRES_IN || '7d' }
+        );
     }
     catch (err) {
-        console.log("Error in generate token");
+        console.error("Error in generateToken:", err.message);
+        throw err;
     }
 }
 
