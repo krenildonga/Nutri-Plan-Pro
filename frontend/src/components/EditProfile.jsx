@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authHeaders } from '../context/AuthContext';
 
 const EditProfile = () => {
-    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000/api");
     const navigate = useNavigate();
 
     const stored = localStorage.getItem('userData');

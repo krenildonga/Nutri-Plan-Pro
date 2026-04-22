@@ -14,7 +14,7 @@ import Profile from './Profile';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
-    const ConnString = import.meta.env.VITE_ConnString;
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000/api");
     const { isAuthenticate, setIsAuthenticate } = useContext(AuthContext);
     const [nav, setNav] = useState(false);
     const [menu, setMenu] = useState('home');

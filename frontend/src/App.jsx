@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './components/Register';
 import { Diet_Rec } from './components/Diet_Rec/Diet_Rec';
 import History from './components/History';
-import { AuthContext } from './context/AuthContext';
+import { AuthContext, authHeaders } from './context/AuthContext';
 import Footer from './components/Footer';
 import ContactUs from './components/ContactUs';
 import Blogs from './components/Blogs';
@@ -23,14 +23,15 @@ import ScrollToTop from './components/ScrollToTop';
 function App() {
   const ConnString = import.meta.env.PROD
     ? "/api"
-    : (import.meta.env.VITE_ConnString || "http://localhost:8000");
+    : (import.meta.env.VITE_ConnString || "http://localhost:8000/api");
   const { isAuthenticate, setIsAuthenticate, setUser } = useContext(AuthContext);
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await fetch(`${ConnString}/auth/getuser`, {
           method: "GET",
-          credentials: 'include'
+          credentials: 'include',
+          headers: authHeaders()
         });
         
         if (!response.ok) {

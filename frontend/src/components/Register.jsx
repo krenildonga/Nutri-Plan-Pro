@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
-  const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
+  const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000/api");
   const [userData, setUserData] = useState({ name: "", email: "", password: "", age: "", height: "", weight: "", gender: "male", occupation: "Dietitians and Nutritionist", dietaryPreference: "Veg" });
   const [showPassword, setShowPassword] = useState(false);
   const {setIsAuthenticate} = useContext(AuthContext);

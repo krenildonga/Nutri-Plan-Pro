@@ -15,7 +15,7 @@ const Login = () => {
   // FINAL SAFE API URL
   const ConnString = import.meta.env.PROD
     ? "/api"
-    : "http://localhost:8000";
+    : "http://localhost:8000/api";
 
   const [inputUserData, setInputUserData] = useState({
     email: "",

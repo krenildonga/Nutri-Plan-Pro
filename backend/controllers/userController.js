@@ -41,7 +41,7 @@ const userRegister = async (req, res) => {
             httpOnly: true,
             maxAge: maxAge,
             sameSite: 'lax',
-            secure: false // Set to true if using HTTPS
+            secure: process.env.NODE_ENV === 'production'
         };
 
         return res.status(201).cookie('token', token, options).json({
@@ -107,7 +107,7 @@ const userLogin = async (req, res) => {
                 httpOnly: true,
                 maxAge: maxAge,
                 sameSite: 'lax',
-                secure: false // Set to true if using HTTPS
+                secure: process.env.NODE_ENV === 'production'
             };
             return res.status(201).cookie('token', token, options).json({
                 success: true,

@@ -9,7 +9,7 @@ const ContactUs = () => {
     }, []);
 
     const [expand, setExpand] = useState(false);
-    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000");
+    const ConnString = import.meta.env.VITE_ConnString || (import.meta.env.PROD ? "/api" : "http://localhost:8000/api");
     const [userData, setUserData] = useState({ name: "", email: "", subject: "", country: "", message: "" });
     const handleSubmit = async (e) => {
         e.preventDefault();
