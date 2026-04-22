@@ -4,6 +4,7 @@ const DietHistory = require('../src/models/DietHistory')
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const config = require('../src/config');
 
 // Helper function to create token and send response
 const sendToken = (user, statusCode, res, message) => {
@@ -12,10 +13,10 @@ const sendToken = (user, statusCode, res, message) => {
     // Cookie options
     const options = {
         expires: new Date(
-            Date.now() + (process.env.COOKIE_EXPIRE || 7) * 24 * 60 * 60 * 1000
+            Date.now() + config.cookieExpire * 24 * 60 * 60 * 1000
         ),
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: config.env === 'production' || config.isVercel,
         sameSite: 'lax'
     };
 
@@ -65,7 +66,7 @@ const userRegister = async (req, res) => {
         return res.status(500).json({ 
             success: false, 
             error: "Internal Server Error", 
-            message: process.env.NODE_ENV === 'production' ? "Check server logs for details" : err.message 
+            message: config.env === 'production' || config.isVercel ? "Check server logs for details" : err.message 
         });
     }
 }
@@ -120,7 +121,7 @@ const userLogin = async (req, res) => {
         return res.status(500).json({ 
             success: false, 
             error: "Internal Server Error",
-            message: process.env.NODE_ENV === 'production' ? "Check server logs for details" : err.message
+            message: config.env === 'production' || config.isVercel ? "Check server logs for details" : err.message
         });
     }
 }

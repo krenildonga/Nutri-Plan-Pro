@@ -56,16 +56,16 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
+const config = require('../config');
+
 // function for generate token
 userSchema.methods.generateToken = function () {
     try {
-        if (!process.env.SECRET_KEY) {
-            throw new Error("SECRET_KEY is not defined in environment variables");
-        }
+        // No need for manual check here anymore, handled in config/index.js
         return jwt.sign(
             { _id: this._id }, 
-            process.env.SECRET_KEY, 
-            { expiresIn: process.env.EXPIRES_IN || '7d' }
+            config.jwtSecret, 
+            { expiresIn: config.jwtExpire }
         );
     }
     catch (err) {

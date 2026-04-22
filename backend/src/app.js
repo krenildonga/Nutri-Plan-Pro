@@ -1,4 +1,4 @@
-require("dotenv").config();
+const config = require("./config");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -7,14 +7,12 @@ const connectDB = require("./db/conn");
 const { loadData } = require("../controllers/dietController");
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = config.port;
 
 connectDB().catch(console.error);
 
 // ✅ CORS must be FIRST — before any routes or other middleware
-const allowedOrigins = process.env.FRONTEND_URL
-    ? [process.env.FRONTEND_URL, "http://localhost:5173"]
-    : true;
+const allowedOrigins = [config.frontendUrl, "http://localhost:5173"];
 
 app.use(cors({
     origin: allowedOrigins,
@@ -38,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 // Health checks
-app.get("/api/health", (req, res) => res.json({ status: "ok", environment: process.env.VERCEL ? "production" : "development" }));
+app.get("/api/health", (req, res) => res.json({ status: "ok", environment: config.isVercel ? "production" : "development" }));
 app.get("/api/ping", (req, res) => res.json({ success: true, message: "pong", timestamp: new Date().toISOString() }));
 
 // ✅ Single clean mounting — only /api prefix (matches vercel.json rewrites)
@@ -48,7 +46,7 @@ apiRouter.use("/", require("./routes/woLogin"));
 
 app.use("/api", apiRouter);
 
-if (!process.env.VERCEL) {
+if (!config.isVercel) {
     app.listen(PORT, () => {
         console.log(`Running on ${PORT}`);
         loadData();

@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
+const config = require("../config");
 
-// MongoDB URI from environment variable, fallback for local development
-const uri =
-    process.env.MONGO_URI ||
-    "mongodb://localhost:27017/nutri_plan_pro";
+// MongoDB URI from environment variable
+const uri = config.mongoUri;
 
 let connectionPromise = null;
 
