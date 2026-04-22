@@ -36,6 +36,7 @@ const userRegister = async (req, res) => {
 
         await registerUser.save();
         const token = await registerUser.generateToken();
+        const maxAge = 3600 * 1000;
         const options = {
             httpOnly: true,
             maxAge: maxAge,
