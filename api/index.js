@@ -1,7 +1,10 @@
 const app = require('../backend/src/app');
+const connectDB = require('../backend/src/db/conn');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   try {
+    // Ensure DB is connected before processing request
+    await connectDB();
     return app(req, res);
   } catch (error) {
     console.error("Vercel Backend Error:", error);
